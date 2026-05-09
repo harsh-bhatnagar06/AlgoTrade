@@ -7,6 +7,7 @@ const regimeService = require('./regime_service');
 const memoryService = require('./memory_service');
 const featureService = require('./feature_service');
 const riskService = require('./risk_service');
+const supabase = require('./db');
 
 class IntelligenceOrchestrator {
   constructor() {
@@ -93,12 +94,22 @@ class IntelligenceOrchestrator {
     return { signal, confidence, reasoning };
   }
 
-  logConsensus(res) {
-    const stmt = memoryService.db.prepare(`
-      INSERT INTO ai_consensus_logs (symbol, signal, confidence, reasoning_summary, consensus_score)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    stmt.run(res.symbol, res.signal, res.confidence, res.reasoning, res.confidence);
+  async logConsensus(res) {
+    try {
+      const { error } = await supabase
+        .from('ai_consensus_logs')
+        .insert({
+          symbol: res.symbol,
+          signal: res.signal,
+          confidence: res.confidence,
+          reasoning_summary: res.reasoning,
+          consensus_score: res.confidence,
+          timestamp: new Date().toISOString()
+        });
+      if (error) throw error;
+    } catch (err) {
+      console.warn('[Orchestrator] Failed to log consensus to cloud:', err.message);
+    }
   }
 }
 

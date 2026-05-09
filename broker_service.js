@@ -6,7 +6,7 @@ window.broker = (function () {
   // ⚠️ UPDATE THIS URL TO YOUR RENDER.COM URL AFTER DEPLOYING THE BACKEND ⚠️
   const API_BASE = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? 'http://localhost:5000' 
-    : ''; // Replace '' with your Render URL when going live
+    : 'https://algotrade-i8s8.onrender.com'; // Your live Render URL
   let jwtToken = null;
   let clientCode = null;
 

@@ -4,7 +4,7 @@
 // Example: const API_BASE = 'https://algo-api-render.onrender.com';
 const API_BASE = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
-  : ''; // Replace '' with your Render URL when going live
+  : 'https://algotrade-i8s8.onrender.com'; // Your live Render URL
 const logger = new Logger('App');
 let strategies = [...DEFAULT_STRATEGIES];
 let orders = [...DEFAULT_ORDERS];

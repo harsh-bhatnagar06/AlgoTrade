@@ -3,8 +3,10 @@
 // The API key never leaves the server — it is NOT present in this file.
 
 window.ai = (function () {
-  // Dynamically resolve the backend origin so this works on localhost AND on any hosted domain.
-  const API_BASE = window.location.origin;
+  // ⚠️ UPDATE THIS URL TO YOUR RENDER.COM URL AFTER DEPLOYING THE BACKEND ⚠️
+  const API_BASE = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:5000' 
+    : 'https://algotrade-i8s8.onrender.com'; // User's live Render URL
 
   // ----------------------------------------------------------------
   // Internal helper: POST to our backend's secure NVIDIA proxy
