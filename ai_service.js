@@ -127,12 +127,60 @@ window.ai = (function () {
     return callBackend('/strategy/evaluate', { trades, capital });
   }
 
+  // ---------- AI Autonomous Strategy Architect (Multi-lingual) ----------
+  async function generateStrategy(description, preferredLang) {
+    const prompt = `
+      Analyze this trading strategy description: "${description}".
+      The user prefers the explanation in: ${preferredLang}.
+      
+      Tasks:
+      1. Detect the intent (Asset, Timeframe, Indicators, Logic).
+      2. Suggest a professional name for this strategy.
+      3. Set reasonable Stop Loss (SL) and Take Profit (TP) if not mentioned.
+      4. Provide a clear, friendly explanation in ${preferredLang}.
+      
+      Respond ONLY with a JSON object in this format:
+      {
+        "name": "Strategy Name",
+        "asset": "SYMBOL",
+        "tf": "15m",
+        "sl": 2.0,
+        "tp": 5.0,
+        "explanation": "Brief explanation in ${preferredLang}"
+      }
+    `;
+
+    const messages = [{ role: 'system', content: 'You are an expert Quant Strategist.' }, { role: 'user', content: prompt }];
+    
+    // Using Mistral Large for its superior reasoning and multi-lingual capabilities
+    const resp = await callAI('mistralai/mistral-large-3-675b-instruct-2512', messages, 0.4);
+    
+    try {
+      const content = resp?.choices?.[0]?.message?.content;
+      // Extract JSON if AI wrapped it in markdown
+      const jsonStr = content.includes('```json') ? content.split('```json')[1].split('```')[0] : content;
+      return JSON.parse(jsonStr);
+    } catch (e) {
+      console.error('Failed to parse AI strategy:', e);
+      // Fallback
+      return {
+        name: "AI Generated Strategy",
+        asset: "NIFTY",
+        tf: "15m",
+        sl: 2.0,
+        tp: 5.0,
+        explanation: "AI ne aapki strategy analyze kar li hai. Aap manually parameters check kar sakte hain."
+      };
+    }
+  }
+
   // Expose public API
   return {
     getConsensusSignal,
     getMarketSentiment,
     performDeepAnalysis,
     generateStrategyScript,
+    generateStrategy, // New multi-lingual method
     validateOrder,
     storeMarketExperience,
     getHistoricalContext,

@@ -21,25 +21,25 @@
   </div>
   <nav class="sidebar-nav">
     <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
-      <span class="nav-icon">⊞</span><span class="nav-label">Monitor Portfolio</span>
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></span><span class="nav-label">Monitor Portfolio</span>
     </a>
     <a href="#" class="nav-item" data-page="watchlist" id="nav-watchlist">
-      <span class="nav-icon">★</span><span class="nav-label">Scan Market</span>
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><span class="nav-label">Scan Market</span>
     </a>
     <a href="#" class="nav-item" data-page="ai" id="nav-ai">
-      <span class="nav-icon">◈</span><span class="nav-label">Analyze Opportunity</span>
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2Z"/><path d="M12 12L2.1 12.1"/><path d="m4.5 9 1.5 1.5"/><path d="m9.5 4.5 1 1.5"/></svg></span><span class="nav-label">Analyze Opportunity</span>
     </a>
     <a href="#" class="nav-item" data-page="strategies" id="nav-strategies">
-      <span class="nav-icon">⌥</span><span class="nav-label">Strategy Architect</span>
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg></span><span class="nav-label">Strategy Architect</span>
     </a>
     <a href="#" class="nav-item" data-page="backtest" id="nav-backtest">
-      <span class="nav-icon">⌬</span><span class="nav-label">Review Performance</span>
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span class="nav-label">Review Performance</span>
     </a>
     <a href="#" class="nav-item" data-page="orders" id="nav-orders">
-      <span class="nav-icon">☍</span><span class="nav-label">Execute Trade</span>
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></span><span class="nav-label">Execute Trade</span>
     </a>
     <a href="#" class="nav-item" data-page="risk" id="nav-risk">
-      <span class="nav-icon">🛡</span><span class="nav-label">Risk Engine</span>
+      <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></span><span class="nav-label">Risk Engine</span>
     </a>
   </nav>
   <div class="sidebar-footer">
@@ -75,8 +75,48 @@
     <div class="topbar-right">
       <div class="ticker-strip" id="ticker-strip"></div>
       <div class="topbar-time" id="topbar-time"></div>
-      <button type="button" class="btn-secondary" id="toggle-chat-terminal">◈ Chat Assistant</button>
-      <button type="button" class="btn-secondary" id="broker-settings-btn" style="margin-right:8px">⚙ Broker</button>
+      
+      <!-- AUTH SECTION -->
+      <div id="auth-section" class="auth-section" style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" class="btn-secondary" id="toggle-chat-terminal">💬 AI Assistant</button>
+        <button type="button" class="btn-secondary" id="broker-settings-btn">🔗 Connect Broker</button>
+        
+        <div id="user-profile" class="user-profile-mini hidden" style="display: flex; align-items: center; gap: 8px; background: var(--bg-card); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border);">
+          <span id="user-email" class="user-email-text" style="font-size: 11px; color: var(--text-main);"></span>
+          <button id="logout-btn" onclick="window.AuthLib.signOut()" title="Sign Out" style="color: #dc2626; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.15); cursor: pointer; font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase;">
+            Logout
+          </button>
+        </div>
+        
+        <button type="button" class="btn-primary" id="login-btn">Sign In</button>
+      </div>
+      
+      <!-- AUTH MODAL (Email Login) -->
+      <div class="modal-overlay" id="auth-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Sign In to AlgoForge</h3>
+            <button class="modal-close" id="close-auth-modal">✕</button>
+          </div>
+          <div class="modal-body">
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Enter your email to sync strategies and trading data.</p>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="auth-email" placeholder="name@example.com" />
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="auth-password" placeholder="••••••••" />
+            </div>
+            <div id="auth-error-msg" style="color: var(--red); font-size: 12px; margin-top: 8px; display: none;"></div>
+          </div>
+          <div class="modal-footer" style="flex-direction: column; gap: 10px; display: flex;">
+            <button class="btn-primary full-width" id="do-login-btn">Log In</button>
+            <button class="btn-secondary full-width" id="do-signup-btn">Create New Account</button>
+          </div>
+        </div>
+      </div>
+
       <button type="button" class="btn-primary" id="new-strategy-btn">+ New Strategy</button>
     </div>
   </header>
@@ -247,57 +287,71 @@
             <button class="modal-close" id="close-strategy-modal">✕</button>
           </div>
           <div class="modal-body">
-            <div class="form-group">
-              <label>Strategy Name</label>
-              <input type="text" id="strat-name" placeholder="e.g. MACD Crossover" />
+            <!-- MODE TOGGLE -->
+            <div class="strat-mode-tabs">
+              <button class="strat-tab active" data-mode="manual">🛠 Manual Architect</button>
+              <button class="strat-tab" data-mode="ai">◈ AI Autonomous</button>
             </div>
-            <div class="form-row">
+
+            <!-- MANUAL SECTION -->
+            <div id="strat-manual-section" class="strat-section active">
               <div class="form-group">
-                <label>Asset</label>
-                <select id="strat-asset">
-                  <option>AAPL</option><option>TSLA</option><option>NVDA</option>
-                  <option>BTC-USD</option><option>ETH-USD</option><option>SPY</option>
-                  <option>QQQ</option><option>AMZN</option><option>MSFT</option>
-                </select>
+                <label>Strategy Name</label>
+                <input type="text" id="strat-name" placeholder="e.g. MACD Crossover" />
               </div>
-              <div class="form-group">
-                <label>Timeframe</label>
-                <select id="strat-timeframe">
-                  <option>1m</option><option>5m</option><option>15m</option>
-                  <option>1h</option><option>4h</option><option>1d</option>
-                </select>
+              <div class="form-row">
+                <div class="form-group"><label>Asset</label><select id="strat-asset"><option>AAPL</option><option>NVDA</option><option>BTC-USD</option><option>NIFTY</option></select></div>
+                <div class="form-group"><label>Timeframe</label><select id="strat-timeframe"><option>1m</option><option>5m</option><option>15m</option><option>1d</option></select></div>
               </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Strategy Type</label>
-                <select id="strat-type">
-                  <option>MACD Crossover</option>
-                  <option>RSI Mean Reversion</option>
-                  <option>Bollinger Bands</option>
-                  <option>Moving Average</option>
-                  <option>Momentum</option>
-                  <option>Pairs Trading</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Capital Allocation ($)</label>
-                <input type="number" id="strat-capital" placeholder="10000" />
+              <div class="form-row">
+                <div class="form-group"><label>Strategy Type</label><select id="strat-type"><option>MACD Crossover</option><option>RSI Mean Reversion</option></select></div>
+                <div class="form-group"><label>Capital ($)</label><input type="number" id="strat-capital" placeholder="10000" /></div>
               </div>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Stop Loss (%)</label>
-                <input type="number" id="strat-sl" placeholder="2" />
+
+            <!-- AI SECTION -->
+            <div id="strat-ai-section" class="strat-section">
+              <div class="ai-prompt-box">
+                <label>Describe your strategy in any language (Hindi/Hinglish/English)</label>
+                <textarea id="strat-ai-desc" placeholder="E.g. 'Mujhe BankNifty ke liye aisi strategy chahiye jo supertrend aur RSI ka use kare...'"></textarea>
               </div>
-              <div class="form-group">
-                <label>Take Profit (%)</label>
-                <input type="number" id="strat-tp" placeholder="5" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Response Language</label>
+                  <select id="strat-ai-lang">
+                    <option value="hinglish">Hinglish (Best)</option>
+                    <option value="hindi">Pure Hindi</option>
+                    <option value="english">English</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Intelligence Level</label>
+                  <select id="strat-ai-temp">
+                    <option value="balanced">Balanced</option>
+                    <option value="creative">Aggressive (Creative)</option>
+                    <option value="conservative">Strict (Conservative)</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn-primary full-width" id="ai-generate-strat-btn" style="background:var(--accent); margin-top:10px;">✨ AI: Generate & Analyze Strategy</button>
+            </div>
+
+            <!-- AI RESULT PREVIEW (HIDDEN BY DEFAULT) -->
+            <div id="strat-ai-result-preview" class="ai-insight-box hidden mt-16">
+              <div class="insight-header">
+                <span class="pulse-dot"></span> ◈ AI Reasoning & Strategy Insight
+              </div>
+              <div id="strat-ai-explanation" class="insight-content">
+                <!-- AI Explanation will be injected here -->
               </div>
             </div>
-            <div class="form-group">
-              <label>Max Drawdown (%)</label>
-              <input type="number" id="strat-drawdown" placeholder="10" />
+
+            <!-- SHARED SETTINGS -->
+            <div class="strat-shared-settings mt-16">
+              <div class="form-row">
+                <div class="form-group"><label>Stop Loss (%)</label><input type="number" id="strat-sl" placeholder="2" /></div>
+                <div class="form-group"><label>Take Profit (%)</label><input type="number" id="strat-tp" placeholder="5" /></div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -558,6 +612,7 @@
         </div>
 
         <!-- Safety Guard -->
+        <!-- Safety Guard -->
         <div class="card ai-card">
           <div class="card-header">
             <span class="card-title">Safety Guard Monitoring</span>
@@ -629,15 +684,11 @@
 <div class="modal-overlay" id="broker-modal">
   <div class="modal">
     <div class="modal-header">
-      <h3>Angel One Connectivity</h3>
+      <h3>Connect Angel One</h3>
       <button class="modal-close" id="close-broker-modal">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Configure your Angel One SmartAPI credentials to fetch real-time market data.</p>
-      <div class="form-group">
-        <label>API Key</label>
-        <input type="text" id="broker-api-key" value="Wg5bEKNc" placeholder="SmartAPI Key" />
-      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Enter your Angel One credentials to trade directly from this platform.</p>
       <div class="form-row">
         <div class="form-group">
           <label>Client Code</label>
@@ -649,14 +700,14 @@
         </div>
       </div>
       <div class="form-group">
-        <label>TOTP Secret / Token</label>
-        <input type="text" id="broker-totp" placeholder="6-digit TOTP from App" />
+        <label>TOTP Code</label>
+        <input type="text" id="broker-totp" placeholder="6-digit code from authenticator app" />
       </div>
-      <div id="broker-status-msg" style="margin-top:10px; font-size:12px; color:var(--blue); display:none;"></div>
+      <div id="broker-status-msg" style="margin-top:10px; font-size:12px; color:var(--accent); display:none;"></div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" id="cancel-broker">Cancel</button>
-      <button class="btn-primary" id="connect-broker">Connect Broker</button>
+      <button class="btn-primary" id="connect-broker">Connect</button>
     </div>
   </div>
 </div>
@@ -706,7 +757,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" id="cancel-execution">Cancel</button>
-      <button class="btn-primary" id="confirm-execute" style="background:var(--green); box-shadow:0 0 20px var(--green-dim);">✔ Confirm &amp; Execute Order</button>
+      <button class="btn-primary" id="confirm-execute" style="background:var(--accent-gain);">✔ Confirm &amp; Execute Order</button>
     </div>
   </div>
 </div>
@@ -718,7 +769,7 @@
     <button class="terminal-close" id="close-chat-terminal">✕</button>
   </div>
   <div class="terminal-history" id="terminal-history">
-    <div class="terminal-msg ai">System initialized. How can I assist your market research today?</div>
+    <div class="terminal-msg ai">👋 Hi! Main AlgoForge AI hoon — aapka personal trading manager. Koi bhi stock, strategy, ya market question poocho. Hindi, Hinglish ya English — jo aapko comfortable lage!</div>
   </div>
   <div class="terminal-input-wrap">
     <textarea id="terminal-input" placeholder="Ask about a symbol, strategy, or regime similarity..."></textarea>
@@ -729,6 +780,19 @@
 <!-- SHARED & EVENTS -->
 <script src="events/event_bus.js"></script>
 <script src="shared/logger.js"></script>
+
+<!-- ============================================================
+     SUPABASE — CDN client (exposes window.supabase.createClient)
+     Never put the anon key in HTML — it's fetched via /api/config
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<!-- SUPABASE LIBRARY MODULES (load order matters) -->
+<script src="src/lib/supabase.js"></script>   <!-- Client init -->
+<script src="src/lib/auth.js"></script>        <!-- Google login / session -->
+<script src="src/lib/db.js"></script>          <!-- Generic CRUD helpers -->
+<script src="src/lib/strategies.js"></script>  <!-- Strategies table CRUD -->
+<script src="src/lib/session.js"></script>     <!-- Session bootstrapper -->
 
 <!-- CORE INTELLIGENCE LAYERS -->
 <script src="core/market/market_data_service.js"></script>

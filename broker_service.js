@@ -1,26 +1,25 @@
-// ===== ANGEL ONE BROKER SERVICE =====
-// All requests are proxied through our backend (/api/broker/*).
-// The Angel One API key is stored in .env on the server — never in this file.
+// ===== ANGEL ONE BROKER SERVICE (Server Proxy Version) =====
+// All API calls go through our backend proxy (/api/broker/*)
+// so the SmartAPI key never leaves the server.
 
 window.broker = (function () {
-  const API_BASE = window.location.origin;
-
-  // JWT token is stored in memory only (never in localStorage for security)
+  // ⚠️ UPDATE THIS URL TO YOUR RENDER.COM URL AFTER DEPLOYING THE BACKEND ⚠️
+  const API_BASE = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:5000' 
+    : ''; // Replace '' with your Render URL when going live
   let jwtToken = null;
-  let refreshToken = null;
-  let feedToken = null;
+  let clientCode = null;
 
   /**
-   * Internal helper: call our broker proxy endpoint
-   * For authenticated calls after login
+   * Authenticated request via server proxy
    */
-  async function proxyRequest(apiPath, method = 'GET', body = null) {
-    if (!jwtToken) return { success: false, error: 'Not logged in' };
+  async function brokerRequest(path, method = 'GET', body = null) {
+    if (!jwtToken) return { success: false, error: "Broker not connected" };
     try {
       const response = await fetch(`${API_BASE}/api/broker/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path: apiPath, method, body, jwtToken }),
+        body: JSON.stringify({ path, method, body: body, jwtToken })
       });
       return await response.json();
     } catch (error) {
@@ -29,97 +28,79 @@ window.broker = (function () {
   }
 
   /**
-   * Authenticates with Angel One via backend proxy.
-   * The API key is injected server-side — not visible to the browser.
+   * Login via server proxy — credentials entered in browser UI
    */
-  async function login(clientCode, password, totp) {
-    console.log("Attempting Angel One Login via secure backend proxy...");
+  async function login(code, password, totp) {
+    console.log("Connecting to Angel One via secure proxy...");
+    clientCode = code;
+
     try {
       const response = await fetch(`${API_BASE}/api/broker/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientcode: clientCode, password, totp }),
+        body: JSON.stringify({ clientcode: code, password, totp })
       });
 
       const data = await response.json();
       if (data.status) {
         jwtToken = data.data.jwtToken;
-        refreshToken = data.data.refreshToken;
-        feedToken = data.data.feedToken;
-        console.log("Login Successful!");
+        console.log("Broker Login Successful!");
         return { success: true, data: data.data };
       } else {
         throw new Error(data.message || "Login failed");
       }
     } catch (error) {
-      console.error("Login Error:", error);
+      console.error("Broker Login Error:", error);
       return { success: false, error: error.message };
     }
   }
 
-  /**
-   * Fetches profile information
-   */
   async function getProfile() {
-    return proxyRequest('/rest/auth/angelbroking/user/v1/getProfile', 'GET');
+    return brokerRequest("/rest/auth/angelbroking/user/v1/getProfile");
   }
 
-  /**
-   * Fetches Last Traded Price (LTP) for a symbol
-   */
   async function getLTP(exchange, symbol, token) {
-    return proxyRequest(
-      '/rest/auth/angelbroking/market/v1/quote',
-      'POST',
-      { mode: 'LTP', exchangeTokens: { [exchange]: [token] } }
-    );
+    return brokerRequest("/rest/auth/angelbroking/market/v1/quote", "POST", {
+      mode: "LTP",
+      exchangeTokens: { [exchange]: [token] }
+    });
   }
 
-  /**
-   * Places an order — falls back to Paper Trading if not logged in
-   */
   async function placeOrder(params) {
     if (!jwtToken) {
-      console.log("Paper Trading Mode: Simulating order fill...");
-      return {
-        status: true,
-        message: "SUCCESS",
-        data: { orderid: "DEMO-" + Math.random().toString(36).substr(2, 9) }
+      console.log("Paper Trading Mode: Simulating order...");
+      return { 
+        status: true, message: "SUCCESS", 
+        data: { orderid: "PAPER-" + Math.random().toString(36).substr(2, 9) } 
       };
     }
-
-    return proxyRequest(
-      '/rest/auth/angelbroking/order/v1/placeOrder',
-      'POST',
-      {
-        variety: "NORMAL",
-        tradingsymbol: params.symbol,
-        symboltoken: params.token,
-        transactiontype: params.side,
-        exchange: params.exchange || "NSE",
-        ordertype: params.type || "MARKET",
-        producttype: "INTRADAY",
-        duration: "DAY",
-        price: params.price || 0,
-        squareoff: params.squareoff || 0,
-        stoploss: params.stoploss || 0,
-        quantity: params.qty,
-      }
-    );
+    
+    return brokerRequest("/rest/auth/angelbroking/order/v1/placeOrder", "POST", {
+      variety: "NORMAL",
+      tradingsymbol: params.symbol,
+      symboltoken: params.token || "0",
+      transactiontype: params.side,
+      exchange: params.exchange || "NSE",
+      ordertype: params.type || "MARKET",
+      producttype: params.productType || "INTRADAY",
+      duration: "DAY",
+      price: params.price || 0,
+      squareoff: params.squareoff || 0,
+      stoploss: params.stoploss || 0,
+      quantity: params.qty
+    });
   }
 
-  /**
-   * Fetches open positions
-   */
   async function getPositions() {
-    return proxyRequest('/rest/auth/angelbroking/order/v1/getPosition', 'GET');
+    return brokerRequest("/rest/auth/angelbroking/order/v1/getPosition");
   }
 
-  /**
-   * Fetches the order book
-   */
   async function getOrderBook() {
-    return proxyRequest('/rest/auth/angelbroking/order/v1/getOrderBook', 'GET');
+    return brokerRequest("/rest/auth/angelbroking/order/v1/getOrderBook");
+  }
+
+  async function getHoldings() {
+    return brokerRequest("/rest/auth/angelbroking/portfolio/v1/getHolding");
   }
 
   return {
@@ -129,6 +110,8 @@ window.broker = (function () {
     placeOrder,
     getPositions,
     getOrderBook,
+    getHoldings,
     isConnected: () => !!jwtToken,
+    getClientCode: () => clientCode
   };
 })();

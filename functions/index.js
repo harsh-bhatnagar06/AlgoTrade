@@ -1,15 +1,12 @@
-/**
- * AlgoForge Intelligence Layer — Backend Server
- * Node.js Express server orchestrating market memory and AI reasoning.
- * Ready for Render.com Deployment.
- */
-
-require('dotenv').config();
-
+require('dotenv').config({ path: '../.env' }); // For local emulator support
+const { onRequest } = require('firebase-functions/v2/https');
+const { setGlobalOptions } = require('firebase-functions/v2');
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const path = require('path');
+
+// Set options
+setGlobalOptions({ maxInstances: 10, region: 'asia-south1' });
 
 // Import Services
 const memoryService = require('./services/memory_service');
@@ -23,22 +20,18 @@ const regimeService = require('./services/regime_service');
 const intelligenceOrchestrator = require('./services/intelligence_orchestrator');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({ origin: true }));
+app.use(cors({ origin: true })); // Firebase needs proper CORS
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Static files (so localhost works just like Firebase Hosting)
-app.use(express.static(path.join(__dirname, '.')));
-
-// Get Secrets from env
+// Get Secrets from env or Firebase Secret Manager
 const getSecret = (key) => process.env[key] || '';
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.json({ status: "Intelligence Layer Active", engine: "AlgoForge Node.js v2.0 (Render)" });
+  res.json({ status: "Intelligence Layer Active", engine: "AlgoForge Firebase v2.0" });
 });
 
 // Config Endpoint
@@ -151,8 +144,8 @@ app.post('/api/broker/request', async (req, res) => {
   }
 });
 
-// Intelligence Routes (Legacy paths supported for frontend compatibility)
-app.post(['/api/experience/store', '/experience/store'], async (req, res) => {
+// Intelligence Routes
+app.post('/api/experience/store', async (req, res) => {
   try {
     const { symbol, price, raw_data, ai_observation } = req.body;
     const features = featureService.extractSemanticFeatures(raw_data || { price, change: 0, rsi: 50 });
@@ -167,7 +160,7 @@ app.post(['/api/experience/store', '/experience/store'], async (req, res) => {
   }
 });
 
-app.post(['/api/experience/search', '/experience/search'], async (req, res) => {
+app.post('/api/experience/search', async (req, res) => {
   try {
     const matches = await memoryService.findSimilarSituations(req.body);
     res.json({ matches });
@@ -176,7 +169,7 @@ app.post(['/api/experience/search', '/experience/search'], async (req, res) => {
   }
 });
 
-app.get(['/api/experience/stats', '/experience/stats'], async (req, res) => {
+app.get('/api/experience/stats', async (req, res) => {
   try {
     res.json(await memoryService.getStats());
   } catch (err) {
@@ -184,7 +177,7 @@ app.get(['/api/experience/stats', '/experience/stats'], async (req, res) => {
   }
 });
 
-app.post(['/api/experience/outcome', '/experience/outcome'], async (req, res) => {
+app.post('/api/experience/outcome', async (req, res) => {
   try {
     const { memory_id, outcomes } = req.body;
     res.json(await outcomeService.recordOutcome(memory_id, outcomes));
@@ -193,7 +186,7 @@ app.post(['/api/experience/outcome', '/experience/outcome'], async (req, res) =>
   }
 });
 
-app.post(['/api/strategy/evaluate', '/strategy/evaluate'], (req, res) => {
+app.post('/api/strategy/evaluate', (req, res) => {
   try {
     const { trades, capital } = req.body;
     res.json(evaluationService.evaluateStrategy(trades, capital));
@@ -202,7 +195,7 @@ app.post(['/api/strategy/evaluate', '/strategy/evaluate'], (req, res) => {
   }
 });
 
-app.post(['/api/execution/trade', '/execution/trade'], async (req, res) => {
+app.post('/api/execution/trade', async (req, res) => {
   try {
     const { tradeRequest, portfolio } = req.body;
     res.json(await executionService.executeTrade(tradeRequest, portfolio));
@@ -211,7 +204,7 @@ app.post(['/api/execution/trade', '/execution/trade'], async (req, res) => {
   }
 });
 
-app.post(['/api/execution/update-order', '/execution/update-order'], async (req, res) => {
+app.post('/api/execution/update-order', async (req, res) => {
   try {
     const { order_id, status, execution_price, broker_order_id } = req.body;
     await executionService.updateOrderStatus(order_id, status, execution_price, broker_order_id);
@@ -221,7 +214,7 @@ app.post(['/api/execution/update-order', '/execution/update-order'], async (req,
   }
 });
 
-app.get(['/api/portfolio/state', '/portfolio/state'], async (req, res) => {
+app.get('/api/portfolio/state', async (req, res) => {
   try {
     res.json(await portfolioService.getLocalPortfolio());
   } catch (err) {
@@ -229,7 +222,7 @@ app.get(['/api/portfolio/state', '/portfolio/state'], async (req, res) => {
   }
 });
 
-app.get(['/api/risk/logs', '/risk/logs'], async (req, res) => {
+app.get('/api/risk/logs', async (req, res) => {
   try {
     res.json(await portfolioService.getRiskLogs());
   } catch (err) {
@@ -237,7 +230,7 @@ app.get(['/api/risk/logs', '/risk/logs'], async (req, res) => {
   }
 });
 
-app.get(['/api/intelligence/think', '/intelligence/think'], async (req, res) => {
+app.get('/api/intelligence/think', async (req, res) => {
   try {
     const { symbol, price } = req.query;
     const result = await intelligenceOrchestrator.think(symbol, { price: parseFloat(price), history: [] });
@@ -247,7 +240,7 @@ app.get(['/api/intelligence/think', '/intelligence/think'], async (req, res) => 
   }
 });
 
-app.get(['/api/intelligence/regime', '/intelligence/regime'], async (req, res) => {
+app.get('/api/intelligence/regime', async (req, res) => {
   try {
     const regime = await regimeService.detectRegime({ index_change: 1.8, vol_index: 0.4 });
     res.json(regime);
@@ -256,15 +249,7 @@ app.get(['/api/intelligence/regime', '/intelligence/regime'], async (req, res) =
   }
 });
 
-app.post(['/api/ai/chat', '/ai/chat'], async (req, res) => {
-  // Same as NVIDIA API Proxy above
-  req.url = '/api/ai/chat';
-  app.handle(req, res);
-});
-
-// Start Server
-app.listen(PORT, () => {
-  console.log(`\n⚡ AlgoForge API Server running on port ${PORT}`);
-  console.log(`📂 Database: Connected to Supabase`);
-  console.log(`🚀 Ready for deployment on Render.com\n`);
-});
+// Export the Express API as a Firebase Function named 'api'
+exports.api = onRequest(
+  app
+);

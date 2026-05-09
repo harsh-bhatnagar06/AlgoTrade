@@ -1,6 +1,10 @@
 // ===== AlgoForge Main App =====
 // Dynamically resolves backend host — works on localhost AND any hosted domain
-const API_BASE = window.location.origin;
+// ⚠️ UPDATE THIS URL TO YOUR RENDER.COM URL AFTER DEPLOYING THE BACKEND ⚠️
+// Example: const API_BASE = 'https://algo-api-render.onrender.com';
+const API_BASE = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000' 
+  : ''; // Replace '' with your Render URL when going live
 const logger = new Logger('App');
 let strategies = [...DEFAULT_STRATEGIES];
 let orders = [...DEFAULT_ORDERS];
@@ -61,10 +65,17 @@ function updateStats() {
 }
 
 // ===== CHARTS =====
-const chartDefaults = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
-const gridColor = 'rgba(30,37,64,0.5)';
+const chartDefaults = { 
+  responsive: true, 
+  maintainAspectRatio: false, 
+  plugins: { 
+    legend: { display: false } 
+  },
+  font: { family: 'Inter' }
+};
+const gridColor = 'rgba(255, 255, 255, 0.05)';
 const lineGradient = (ctx, c1, c2) => {
-  const g = ctx.createLinearGradient(0, 0, 0, 300);
+  const g = ctx.createLinearGradient(0, 0, 0, 400);
   g.addColorStop(0, c1); g.addColorStop(1, c2);
   return g;
 };
@@ -73,20 +84,20 @@ function initPortfolioChart() {
   const ctx = document.getElementById('portfolioChart').getContext('2d');
   const data = generateEquityCurve(250000, 60);
   const labels = data.map((_, i) => i);
-  const gradient = lineGradient(ctx, 'rgba(79,142,247,0.3)', 'rgba(79,142,247,0)');
+  const gradient = lineGradient(ctx, 'rgba(10, 132, 255, 0.15)', 'rgba(10, 132, 255, 0)');
   portfolioChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
       datasets: [{
         data, fill: true, backgroundColor: gradient,
-        borderColor: '#4f8ef7', borderWidth: 2, pointRadius: 0,
-        tension: 0.4
+        borderColor: '#0a84ff', borderWidth: 2.5, pointRadius: 0,
+        tension: 0.3
       }]
     },
     options: { ...chartDefaults, scales: {
       x: { display: false },
-      y: { grid: { color: gridColor }, ticks: { color: '#7b8ab8', font: { family: 'JetBrains Mono', size: 11 }, callback: v => '$' + (v/1000).toFixed(0) + 'k' } }
+      y: { border: { display: false }, grid: { color: gridColor }, ticks: { color: '#8e8e93', font: { family: 'Inter', size: 12 }, callback: v => '$' + (v/1000).toFixed(0) + 'k' } }
     }}
   });
 }
@@ -97,20 +108,36 @@ function initAllocationChart() {
     type: 'doughnut',
     data: {
       labels: strategies.map(s => s.name),
-      datasets: [{ data: strategies.map(s => s.capital), backgroundColor: ['#4f8ef7', '#7c5cf5', '#22d3a5', '#f5c842', '#f5475c'], borderWidth: 0 }]
+      datasets: [{ 
+        data: strategies.map(s => s.capital), 
+        backgroundColor: ['#0a84ff', '#5e5ce6', '#30d158', '#ff9f0a', '#ff453a'], 
+        borderWidth: 2,
+        borderColor: '#1c1c1e', /* Match card bg for clean separation */
+        hoverOffset: 4
+      }]
     },
-    options: { ...chartDefaults, cutout: '70%', plugins: { legend: { display: true, position: 'bottom', labels: { color: '#7b8ab8', font: { size: 11 }, padding: 8, boxWidth: 10 } } } }
+    options: { 
+      ...chartDefaults, 
+      cutout: '80%', 
+      plugins: { 
+        legend: { 
+          display: true, 
+          position: 'bottom', 
+          labels: { color: '#8e8e93', font: { size: 12, family: 'Inter' }, padding: 16, boxWidth: 8, usePointStyle: true } 
+        } 
+      } 
+    }
   });
 }
 
 function initDrawdownChart() {
   const ctx = document.getElementById('drawdownChart').getContext('2d');
   const data = generateDrawdownSeries(60);
-  const gradient = lineGradient(ctx, 'rgba(245,71,92,0.25)', 'rgba(245,71,92,0)');
+  const gradient = lineGradient(ctx, 'rgba(255, 69, 58, 0.1)', 'rgba(255, 69, 58, 0)');
   drawdownChart = new Chart(ctx, {
     type: 'line',
-    data: { labels: data.map((_, i) => i), datasets: [{ data, fill: true, backgroundColor: gradient, borderColor: '#f5475c', borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
-    options: { ...chartDefaults, scales: { x: { display: false }, y: { grid: { color: gridColor }, ticks: { color: '#7b8ab8', font: { family: 'JetBrains Mono', size: 11 }, callback: v => v.toFixed(1) + '%' } } } }
+    data: { labels: data.map((_, i) => i), datasets: [{ data, fill: true, backgroundColor: gradient, borderColor: '#ff453a', borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
+    options: { ...chartDefaults, scales: { x: { display: false }, y: { border: { display: false }, grid: { color: gridColor }, ticks: { color: '#8e8e93', font: { family: 'Inter', size: 12 }, callback: v => v.toFixed(1) + '%' } } } }
   });
 }
 
@@ -120,9 +147,9 @@ function initSectorChart() {
     type: 'doughnut',
     data: {
       labels: ['Technology', 'Crypto', 'Consumer', 'Finance', 'ETF'],
-      datasets: [{ data: [45, 25, 10, 10, 10], backgroundColor: ['#4f8ef7', '#f5c842', '#22d3a5', '#7c5cf5', '#f5475c'], borderWidth: 0 }]
+      datasets: [{ data: [45, 25, 10, 10, 10], backgroundColor: ['#0a84ff', '#ff9f0a', '#30d158', '#5e5ce6', '#ff453a'], borderWidth: 2, borderColor: '#1c1c1e' }]
     },
-    options: { ...chartDefaults, cutout: '65%', plugins: { legend: { display: true, position: 'bottom', labels: { color: '#7b8ab8', font: { size: 11 }, padding: 8, boxWidth: 10 } } } }
+    options: { ...chartDefaults, cutout: '80%', plugins: { legend: { display: true, position: 'bottom', labels: { color: '#8e8e93', font: { size: 12 }, padding: 16, boxWidth: 8, usePointStyle: true } } } }
   });
 }
 
@@ -166,7 +193,10 @@ function renderStrategies() {
   grid.innerHTML = strategies.map(s => `
     <div class="strategy-card" data-id="${s.id}">
       <div class="strat-top">
-        <span class="strat-name">${s.name}</span>
+        <div>
+          <span class="strat-name">${s.name}</span>
+          ${s.type === 'AI Generated' ? '<span class="ai-badge-mini">◈ AI</span>' : ''}
+        </div>
         <span class="strat-badge ${s.status}">${s.status.toUpperCase()}</span>
       </div>
       <div class="strat-info">
@@ -201,29 +231,120 @@ function removeStrategy(id) {
 }
 
 // ===== STRATEGY MODAL =====
+// STRATEGY MODAL TABS
+document.querySelectorAll('.strat-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.strat-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.strat-section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(`strat-${tab.dataset.mode}-section`).classList.add('active');
+  });
+});
+
+// AI GENERATION LOGIC
+document.getElementById('ai-generate-strat-btn')?.addEventListener('click', async () => {
+  const desc = document.getElementById('strat-ai-desc').value;
+  const lang = document.getElementById('strat-ai-lang').value;
+  if (!desc) return showToast('Pehle strategy describe kijiye!', 'error');
+
+  const btn = document.getElementById('ai-generate-strat-btn');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span> AI is Thinking...';
+  btn.disabled = true;
+
+  try {
+    const result = await window.ai.generateStrategy(desc, lang);
+    
+    // Show and fill the Insight Box
+    const insightBox = document.getElementById('strat-ai-result-preview');
+    const explanationEl = document.getElementById('strat-ai-explanation');
+    if (insightBox && explanationEl) {
+      explanationEl.textContent = result.explanation;
+      insightBox.classList.remove('hidden');
+    }
+
+    // Auto-fill fields from AI technical output
+    document.getElementById('strat-name').value = result.name;
+    document.getElementById('strat-asset').value = result.asset;
+    document.getElementById('strat-timeframe').value = result.tf;
+    document.getElementById('strat-sl').value = result.sl;
+    document.getElementById('strat-tp').value = result.tp;
+    
+    showToast(`AI: Strategy generated successfully!`, 'info');
+    
+    // Switch to manual tab to let user review
+    document.querySelector('.strat-tab[data-mode="manual"]').click();
+  } catch (e) {
+    showToast('AI Generation failed: ' + e.message, 'error');
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+});
+
 const stratModal = document.getElementById('strategy-modal');
 document.getElementById('create-strategy-btn').addEventListener('click', () => stratModal.classList.add('open'));
 document.getElementById('new-strategy-btn').addEventListener('click', () => stratModal.classList.add('open'));
 document.getElementById('close-strategy-modal').addEventListener('click', () => stratModal.classList.remove('open'));
 document.getElementById('cancel-strategy').addEventListener('click', () => stratModal.classList.remove('open'));
-document.getElementById('save-strategy').addEventListener('click', () => {
+document.getElementById('save-strategy').addEventListener('click', async () => {
   const name = document.getElementById('strat-name').value || 'New Strategy';
-  strategies.push({
-    id: nextStratId++, name,
+  const newStrat = {
+    name,
     asset: document.getElementById('strat-asset').value,
-    tf: document.getElementById('strat-timeframe').value,
-    type: document.getElementById('strat-type').value,
+    timeframe: document.getElementById('strat-timeframe').value,
+    strategy_type: document.getElementById('strat-type').value || 'AI Generated',
     capital: parseInt(document.getElementById('strat-capital').value) || 10000,
-    sl: parseFloat(document.getElementById('strat-sl').value) || 2,
-    tp: parseFloat(document.getElementById('strat-tp').value) || 5,
-    dd: parseFloat(document.getElementById('strat-drawdown').value) || 10,
-    status: 'paused', pnl: 0, trades: 0, winRate: 0
-  });
+    stop_loss: parseFloat(document.getElementById('strat-sl').value) || 2,
+    take_profit: parseFloat(document.getElementById('strat-tp').value) || 5,
+    status: 'paused'
+  };
+
+  // SYNC TO SUPABASE
+  if (window.StrategiesDB && window.SessionLib.isLoggedIn()) {
+    showToast('Saving to Cloud...', 'info');
+    const { data, error } = await window.StrategiesDB.createStrategy(newStrat);
+    if (error) {
+      showToast('Cloud Save Failed: ' + error.message, 'error');
+    } else {
+      strategies.push(data);
+      showToast(`Strategy "${name}" saved to Cloud!`, 'success');
+    }
+  } else {
+    // Fallback to local memory if not logged in
+    newStrat.id = nextStratId++;
+    newStrat.pnl = 0; newStrat.trades = 0; newStrat.winRate = 0;
+    strategies.push(newStrat);
+    showToast(`Strategy "${name}" saved locally (Login to sync)!`);
+  }
+
   renderStrategies(); updateStats();
   updateAIReasoningDropdown();
   stratModal.classList.remove('open');
-  showToast(`Strategy "${name}" created!`);
 });
+
+// Load strategies from cloud on login
+async function loadUserStrategies() {
+  if (window.StrategiesDB && window.SessionLib.isLoggedIn()) {
+    const { data, error } = await window.StrategiesDB.getAllStrategies();
+    if (!error && data) {
+      // Clear and replace local strategies with cloud data
+      strategies.length = 0;
+      data.forEach(s => {
+        // Map database fields to UI fields if necessary
+        s.tf = s.timeframe;
+        s.pnl = s.pnl || 0;
+        s.trades = s.trades || 0;
+        s.winRate = s.win_rate || 0;
+        strategies.push(s);
+      });
+      renderStrategies();
+      updateStats();
+      updateAIReasoningDropdown();
+      logger.info(`Loaded ${data.length} strategies from Supabase`);
+    }
+  }
+}
 
 function updateAIReasoningDropdown() {
   const select = document.getElementById('ai-reasoning-target');
@@ -566,6 +687,31 @@ document.querySelectorAll('.chart-tab').forEach(tab => {
 
 // ===== INIT =====
 async function init() {
+  // Boot Supabase session — non-blocking, failure won't break the app
+  if (window.SessionLib) {
+    SessionLib.init({
+      onSignIn: (user) => {
+        logger.info(`Supabase: Signed in as ${user?.email}`);
+        // Update UI
+        document.getElementById('login-btn')?.classList.add('hidden');
+        document.getElementById('user-profile')?.classList.remove('hidden');
+        document.getElementById('broker-settings-btn')?.classList.remove('hidden');
+        const emailEl = document.getElementById('user-email');
+        if (emailEl) emailEl.textContent = user?.email || 'Authenticated';
+
+        // SYNC STRATEGIES FROM CLOUD
+        loadUserStrategies();
+      },
+      onSignOut: () => {
+        logger.info('Supabase: User signed out');
+        // Update UI
+        document.getElementById('login-btn')?.classList.remove('hidden');
+        document.getElementById('user-profile')?.classList.add('hidden');
+        document.getElementById('broker-settings-btn')?.classList.add('hidden');
+      },
+    }).catch(e => logger.warn('Session init error:', e));
+  }
+
   await initCore();
   updateClock(); updateTicker(); updateStats();
   
@@ -579,9 +725,73 @@ async function init() {
   renderOrders(); renderRiskMeters();
   updateAIReasoningDropdown();
   initAIHandlers();
+  initAuthHandlers();
   initBrokerHandlers();
   initExecutionHandlers();
   runBootSequence(); // Ensure boot overlay clears
+}
+
+function initAuthHandlers() {
+  const authBtn = document.getElementById('login-btn');
+  const authModal = document.getElementById('auth-modal');
+  const closeAuthModal = document.getElementById('close-auth-modal');
+  const doLoginBtn = document.getElementById('do-login-btn');
+  const doSignupBtn = document.getElementById('do-signup-btn');
+  const errorMsg = document.getElementById('auth-error-msg');
+
+  if (!authBtn || !authModal) return;
+
+  authBtn.addEventListener('click', () => {
+    authModal.classList.add('open');
+    errorMsg.style.display = 'none';
+  });
+
+  closeAuthModal?.addEventListener('click', () => {
+    authModal.classList.remove('open');
+  });
+
+  const handleAuth = async (isSignup) => {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+
+    if (!email || !password) {
+      errorMsg.textContent = 'Please enter both email and password';
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    const originalText = isSignup ? 'Creating Account...' : 'Logging In...';
+    const targetBtn = isSignup ? doSignupBtn : doLoginBtn;
+    const btnText = targetBtn.textContent;
+    targetBtn.textContent = originalText;
+    targetBtn.disabled = true;
+    errorMsg.style.display = 'none';
+
+    try {
+      const result = isSignup 
+        ? await window.AuthLib.signUpWithEmail(email, password)
+        : await window.AuthLib.signInWithEmail(email, password);
+
+      if (result.success) {
+        if (isSignup) {
+          showToast('Account created! Please check your email for confirmation.', 'success');
+        }
+        authModal.classList.remove('open');
+      } else {
+        errorMsg.textContent = result.error;
+        errorMsg.style.display = 'block';
+      }
+    } catch (e) {
+      errorMsg.textContent = 'Authentication error: ' + e.message;
+      errorMsg.style.display = 'block';
+    } finally {
+      targetBtn.textContent = btnText;
+      targetBtn.disabled = false;
+    }
+  };
+
+  doLoginBtn?.addEventListener('click', () => handleAuth(false));
+  doSignupBtn?.addEventListener('click', () => handleAuth(true));
 }
 
 // initAIHandlers and initExecutionHandlers are defined fully below
@@ -607,7 +817,6 @@ function initBrokerHandlers() {
   });
 
   connectBrokerBtn?.addEventListener('click', async () => {
-    const apiKey = document.getElementById('broker-api-key').value;
     const clientCode = document.getElementById('broker-client-code').value;
     const password = document.getElementById('broker-password').value;
     const totp = document.getElementById('broker-totp').value;
@@ -617,37 +826,33 @@ function initBrokerHandlers() {
       return;
     }
 
-    // Update config
-    ANGEL_ONE_CONFIG.API_KEY = apiKey;
-    ANGEL_ONE_CONFIG.CLIENT_CODE = clientCode;
-    ANGEL_ONE_CONFIG.PASSWORD = password;
-
     brokerStatusMsg.style.display = 'block';
     brokerStatusMsg.textContent = 'Connecting to Angel One...';
-    brokerStatusMsg.style.color = 'var(--blue)';
+    brokerStatusMsg.style.color = 'var(--accent)';
 
     const result = await window.broker.login(clientCode, password, totp);
 
     if (result.success) {
-      brokerStatusMsg.textContent = 'Successfully Connected!';
+      brokerStatusMsg.textContent = '✓ Connected Successfully!';
       brokerStatusMsg.style.color = 'var(--green)';
-      document.getElementById('connection-status').textContent = 'Angel One Active';
-      const statusDot = document.querySelector('.topbar-status .status-dot');
-      if (statusDot) statusDot.style.background = 'var(--green)';
-      showToast('Broker connected successfully!');
+      
+      const badge = document.getElementById('broker-connection-badge');
+      if (badge) { badge.textContent = 'Broker Connected'; badge.className = 'status-badge filled'; }
+      
+      showToast('Angel One connected!', 'success');
       
       setTimeout(() => {
         brokerModal.classList.remove('open');
         brokerStatusMsg.style.display = 'none';
       }, 1500);
 
-      // Fetch profile to verify
+      // Fetch profile
       const profile = await window.broker.getProfile();
       console.log("Angel One Profile:", profile);
     } else {
       brokerStatusMsg.textContent = 'Error: ' + result.error;
       brokerStatusMsg.style.color = 'var(--red)';
-      showToast('Broker connection failed', 'error');
+      showToast('Broker connection failed: ' + result.error, 'error');
     }
   });
 }
@@ -916,6 +1121,8 @@ async function updateRegimeDisplay() {
 }
 
 // ===== CHAT TERMINAL HANDLERS =====
+const chatHistory = []; // Stores {role, content} for context
+
 function initChatTerminal() {
   const terminal = document.getElementById('ai-chat-terminal');
   const btnToggle = document.getElementById('toggle-chat-terminal');
@@ -927,10 +1134,16 @@ function initChatTerminal() {
   btnToggle?.addEventListener('click', (e) => {
     e.preventDefault();
     terminal.classList.toggle('open');
+    if (terminal.classList.contains('open')) input?.focus();
   });
   btnClose?.addEventListener('click', (e) => {
     e.preventDefault();
     terminal.classList.remove('open');
+  });
+
+  // Enter key to send
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btnSend?.click(); }
   });
 
   btnSend?.addEventListener('click', async (e) => {
@@ -938,7 +1151,7 @@ function initChatTerminal() {
     const msg = input.value.trim();
     if (!msg) return;
 
-    // Add user msg
+    // Add user message to UI
     const userDiv = document.createElement('div');
     userDiv.className = 'terminal-msg user';
     userDiv.textContent = msg;
@@ -946,22 +1159,28 @@ function initChatTerminal() {
     input.value = '';
     history.scrollTop = history.scrollHeight;
 
-    // Simulate AI response
+    // Add to conversation history
+    chatHistory.push({ role: 'user', content: msg });
+
+    // Show typing indicator
     const aiDiv = document.createElement('div');
     aiDiv.className = 'terminal-msg ai';
     aiDiv.innerHTML = '<span class="spinner"></span> Thinking...';
     history.appendChild(aiDiv);
+    history.scrollTop = history.scrollHeight;
 
     try {
       const response = await fetch(`${API_BASE}/ai/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg })
+        body: JSON.stringify({ messages: chatHistory })
       });
       const data = await response.json();
+      aiDiv.innerHTML = '';
       aiDiv.textContent = data.reply;
+      chatHistory.push({ role: 'assistant', content: data.reply });
     } catch (e) {
-      aiDiv.textContent = "Connection to Intelligence Core lost. Please check server status.";
+      aiDiv.textContent = "Server se connection nahi ho paya. Please check if server is running.";
     }
     history.scrollTop = history.scrollHeight;
   });
