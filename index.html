@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoForge — Algorithmic Trading Platform</title>
+  <meta name="description" content="Professional algorithmic trading automation platform with real-time market data, strategy builder, backtesting, and risk management." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">ΛF</div>
+    <span class="logo-text">AlgoForge <span style="font-size:10px; color:var(--accent); vertical-align:top;">OS</span></span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+      <span class="nav-icon">⊞</span><span class="nav-label">Monitor Portfolio</span>
+    </a>
+    <a href="#" class="nav-item" data-page="watchlist" id="nav-watchlist">
+      <span class="nav-icon">★</span><span class="nav-label">Scan Market</span>
+    </a>
+    <a href="#" class="nav-item" data-page="ai" id="nav-ai">
+      <span class="nav-icon">◈</span><span class="nav-label">Analyze Opportunity</span>
+    </a>
+    <a href="#" class="nav-item" data-page="strategies" id="nav-strategies">
+      <span class="nav-icon">⌥</span><span class="nav-label">Strategy Architect</span>
+    </a>
+    <a href="#" class="nav-item" data-page="backtest" id="nav-backtest">
+      <span class="nav-icon">⌬</span><span class="nav-label">Review Performance</span>
+    </a>
+    <a href="#" class="nav-item" data-page="orders" id="nav-orders">
+      <span class="nav-icon">☍</span><span class="nav-label">Execute Trade</span>
+    </a>
+    <a href="#" class="nav-item" data-page="risk" id="nav-risk">
+      <span class="nav-icon">🛡</span><span class="nav-label">Risk Engine</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="live-badge"><span class="pulse-dot"></span> AI ACTIVE</div>
+    <div class="market-status" id="system-status">System: Thinking...</div>
+  </div>
+</aside>
+
+<!-- INTELLIGENCE BOOT SEQUENCE -->
+<div id="boot-overlay" class="boot-overlay">
+  <div class="boot-content">
+    <div class="boot-logo">ΛF</div>
+    <div class="boot-status" id="boot-status">Initializing Neural Market Brain...</div>
+    <div class="boot-progress-bar"><div class="boot-progress-fill" id="boot-fill"></div></div>
+    <div class="boot-logs" id="boot-logs">
+      <div>> Loading 21 Consensus Models...</div>
+      <div>> Connecting to NVIDIA NIM...</div>
+      <div>> Retrieving Historical Memories...</div>
+      <div>> Classifying Market Regime...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" id="menu-btn">☰</button>
+      <h1 class="page-title" id="page-title">Intelligence Hub</h1>
+    </div>
+    <div class="topbar-right">
+      <div class="ticker-strip" id="ticker-strip"></div>
+      <div class="topbar-time" id="topbar-time"></div>
+      <button type="button" class="btn-secondary" id="toggle-chat-terminal">◈ Chat Assistant</button>
+      <button type="button" class="btn-secondary" id="broker-settings-btn" style="margin-right:8px">⚙ Broker</button>
+      <button type="button" class="btn-primary" id="new-strategy-btn">+ New Strategy</button>
+    </div>
+  </header>
+
+  <!-- PAGES -->
+  <div class="pages-container">
+
+    <!-- === DASHBOARD PAGE === -->
+    <section class="page active" id="page-dashboard">
+      <div style="margin-bottom:20px; display:flex; gap:10px;">
+        <button type="button" class="btn-secondary" id="demo-signal-btn" style="border:1px dashed var(--accent);">⚡ Generate Demo AI Signal (NVDA)</button>
+        <div id="demo-thinking-status" style="font-size:12px; color:var(--text-muted); display:none; align-items:center;">
+          <span class="spinner" style="margin-right:8px;"></span> AI is thinking...
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card" id="stat-portfolio">
+          <div class="stat-label">Portfolio Value</div>
+          <div class="stat-value" id="portfolio-value">$0.00</div>
+          <div class="stat-change positive" id="portfolio-change">+0.00%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Today's P&amp;L</div>
+          <div class="stat-value" id="daily-pnl">$0.00</div>
+          <div class="stat-change" id="daily-pnl-pct">+0.00%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Strategies</div>
+          <div class="stat-value" id="active-strategies">0</div>
+          <div class="stat-change neutral">Running now</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Win Rate</div>
+          <div class="stat-value" id="win-rate">0%</div>
+          <div class="stat-change positive" id="win-rate-change">Last 30 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Open Positions</div>
+          <div class="stat-value" id="open-positions">0</div>
+          <div class="stat-change neutral" id="pos-change">across all strategies</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Sharpe Ratio</div>
+          <div class="stat-value" id="sharpe-ratio">0.00</div>
+          <div class="stat-change positive">Annualized</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- TOP OPPORTUNITIES (UNIFIED ENTITY) -->
+        <div class="card large" style="grid-column: span 2;">
+          <div class="card-header">
+            <span class="card-title">Top Intelligence Opportunities</span>
+            <span class="ai-layer-tag">Autonomous Ranking</span>
+          </div>
+          <div class="opportunity-list" id="top-opportunities">
+            <div class="opportunity-item shimmer"></div>
+            <div class="opportunity-item shimmer"></div>
+            <div class="opportunity-item shimmer"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Market Regime</span></div>
+          <div class="regime-status-box" id="regime-status-box" style="padding:20px; text-align:center;">
+            <div class="regime-type" id="current-regime-display" style="font-size:18px; font-weight:700; color:var(--accent); margin-bottom:10px;">Scanning...</div>
+            <div class="regime-desc" id="current-regime-desc" style="font-size:12px; color:var(--text-secondary);">The AI is currently analyzing market structural dynamics and macroeconomic sentiment.</div>
+          </div>
+        </div>
+
+        <div class="card chart-card large">
+          <div class="card-header">
+            <span class="card-title">Portfolio Intelligence</span>
+            <div class="chart-tabs">
+              <button class="chart-tab active" data-range="1D">1D</button>
+              <button class="chart-tab" data-range="1W">1W</button>
+              <button class="chart-tab" data-range="1M">1M</button>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="portfolioChart"></canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Strategy Allocation</span></div>
+          <div class="chart-wrap small-chart"><canvas id="allocationChart"></canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Trades</span></div>
+          <div class="trades-list" id="recent-trades"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Top Movers</span></div>
+          <div class="movers-list" id="top-movers"></div>
+        </div>
+
+        <!-- NEW: TRADING EXECUTION PANEL -->
+        <div class="card execution-card">
+          <div class="card-header">
+            <span class="card-title">Trading Execution Panel</span>
+            <div id="broker-connection-badge" class="status-badge cancelled">Disconnected</div>
+          </div>
+          <div class="modal-body">
+            <div class="order-side-btns">
+              <button class="side-btn buy active" id="exec-buy">BUY</button>
+              <button class="side-btn sell" id="exec-sell">SELL</button>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Symbol</label><input type="text" id="exec-symbol" placeholder="AAPL" /></div>
+              <div class="form-group"><label>Qty</label><input type="number" id="exec-qty" placeholder="100" /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Order Type</label>
+                <select id="exec-type"><option>MARKET</option><option>LIMIT</option></select>
+              </div>
+              <div class="form-group"><label>Price</label><input type="number" id="exec-price" placeholder="0.00" /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Stop Loss</label><input type="number" id="exec-sl" placeholder="SL Price" /></div>
+              <div class="form-group"><label>Target</label><input type="number" id="exec-tp" placeholder="TP Price" /></div>
+            </div>
+            <div class="execution-risk-summary" id="exec-risk-info">
+              <div class="risk-info-row"><span>Estimated Margin:</span> <strong id="exec-margin">$0.00</strong></div>
+              <div class="risk-info-row"><span>AI Confidence:</span> <strong id="exec-confidence" class="positive">85%</strong></div>
+            </div>
+            <button class="btn-primary full-width" id="btn-review-execute">Review &amp; Execute Trade</button>
+          </div>
+        </div>
+
+        <!-- NEW: ACTIVE POSITIONS MONITOR -->
+        <div class="card large">
+          <div class="card-header">
+            <span class="card-title">Active Positions</span>
+            <button class="add-watch-btn" id="refresh-positions">↻ Sync</button>
+          </div>
+          <div class="watchlist-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Symbol</th><th>Qty</th><th>Entry</th><th>LTP</th><th>PnL</th><th>Status</th><th>SL/TP</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="active-positions-body">
+                <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px;">No open positions.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === STRATEGIES PAGE === -->
+    <section class="page" id="page-strategies">
+      <div class="section-header">
+        <h2>My Strategies</h2>
+        <button class="btn-primary" id="create-strategy-btn">+ Create Strategy</button>
+      </div>
+      <div class="strategies-grid" id="strategies-grid"></div>
+
+      <!-- Strategy Builder Modal -->
+      <div class="modal-overlay" id="strategy-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Strategy Builder</h3>
+            <button class="modal-close" id="close-strategy-modal">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Strategy Name</label>
+              <input type="text" id="strat-name" placeholder="e.g. MACD Crossover" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Asset</label>
+                <select id="strat-asset">
+                  <option>AAPL</option><option>TSLA</option><option>NVDA</option>
+                  <option>BTC-USD</option><option>ETH-USD</option><option>SPY</option>
+                  <option>QQQ</option><option>AMZN</option><option>MSFT</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Timeframe</label>
+                <select id="strat-timeframe">
+                  <option>1m</option><option>5m</option><option>15m</option>
+                  <option>1h</option><option>4h</option><option>1d</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Strategy Type</label>
+                <select id="strat-type">
+                  <option>MACD Crossover</option>
+                  <option>RSI Mean Reversion</option>
+                  <option>Bollinger Bands</option>
+                  <option>Moving Average</option>
+                  <option>Momentum</option>
+                  <option>Pairs Trading</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Capital Allocation ($)</label>
+                <input type="number" id="strat-capital" placeholder="10000" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Stop Loss (%)</label>
+                <input type="number" id="strat-sl" placeholder="2" />
+              </div>
+              <div class="form-group">
+                <label>Take Profit (%)</label>
+                <input type="number" id="strat-tp" placeholder="5" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Max Drawdown (%)</label>
+              <input type="number" id="strat-drawdown" placeholder="10" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-secondary" id="cancel-strategy">Cancel</button>
+            <button class="btn-primary" id="save-strategy">Save Strategy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === BACKTEST PAGE === -->
+    <section class="page" id="page-backtest">
+      <div class="section-header">
+        <h2>Backtesting Engine</h2>
+      </div>
+      <div class="backtest-layout">
+        <div class="card backtest-config">
+          <div class="card-header"><span class="card-title">Configure Backtest</span></div>
+          <div class="backtest-form">
+            <div class="form-group">
+              <label>Select Strategy</label>
+              <select id="bt-strategy">
+                <option>MACD Crossover — AAPL</option>
+                <option>RSI Mean Reversion — BTC-USD</option>
+                <option>Bollinger Bands — TSLA</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="bt-start" value="2024-01-01" />
+              </div>
+              <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="bt-end" value="2025-01-01" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Initial Capital ($)</label>
+              <input type="number" id="bt-capital" value="100000" />
+            </div>
+            <div class="form-group">
+              <label>Commission (%)</label>
+              <input type="number" id="bt-commission" value="0.1" step="0.01" />
+            </div>
+            <button class="btn-primary full-width" id="run-backtest">▶ Run Backtest</button>
+          </div>
+        </div>
+
+        <div class="backtest-results" id="backtest-results">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Equity Curve</span></div>
+            <div class="chart-wrap"><canvas id="backtestChart"></canvas></div>
+          </div>
+          <div class="backtest-metrics" id="backtest-metrics">
+            <div class="metric-card"><div class="metric-label">Total Return</div><div class="metric-val positive" id="bt-return">—</div></div>
+            <div class="metric-card"><div class="metric-label">Max Drawdown</div><div class="metric-val negative" id="bt-drawdown">—</div></div>
+            <div class="metric-card"><div class="metric-label">Sharpe Ratio</div><div class="metric-val" id="bt-sharpe">—</div></div>
+            <div class="metric-card"><div class="metric-label">Win Rate</div><div class="metric-val positive" id="bt-winrate">—</div></div>
+            <div class="metric-card"><div class="metric-label">Total Trades</div><div class="metric-val" id="bt-trades">—</div></div>
+            <div class="metric-card"><div class="metric-label">Profit Factor</div><div class="metric-val positive" id="bt-pf">—</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === WATCHLIST PAGE === -->
+    <section class="page" id="page-watchlist">
+      <div class="section-header">
+        <h2>Market Watchlist</h2>
+        <div class="search-bar">
+          <input type="text" id="watchlist-search" placeholder="Search symbol..." />
+        </div>
+      </div>
+      <div class="watchlist-table-wrap">
+        <table class="watchlist-table" id="watchlist-table">
+          <thead>
+            <tr>
+              <th>Symbol</th><th>Name</th><th>Price</th>
+              <th>Change</th><th>Change %</th><th>Volume</th>
+              <th>Market Cap</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="watchlist-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- === ORDERS PAGE === -->
+    <section class="page" id="page-orders">
+      <div class="section-header">
+        <h2>Order Management</h2>
+        <button class="btn-primary" id="manual-order-btn">+ Place Order</button>
+      </div>
+      <div class="orders-tabs">
+        <button class="order-tab active" data-tab="open">Open Orders</button>
+        <button class="order-tab" data-tab="filled">Filled</button>
+        <button class="order-tab" data-tab="cancelled">Cancelled</button>
+      </div>
+      <div class="card mt-16">
+        <table class="data-table" id="orders-table">
+          <thead>
+            <tr><th>Time</th><th>Symbol</th><th>Side</th><th>Type</th><th>Qty</th><th>Price</th><th>Status</th><th>Strategy</th><th>Action</th></tr>
+          </thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Order Modal -->
+      <div class="modal-overlay" id="order-modal">
+        <div class="modal">
+          <div class="modal-header"><h3>Place Order</h3><button class="modal-close" id="close-order-modal">✕</button></div>
+          <div class="modal-body">
+            <div class="order-side-btns">
+              <button class="side-btn buy active" id="btn-buy" data-side="BUY">BUY</button>
+              <button class="side-btn sell" id="btn-sell" data-side="SELL">SELL</button>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Symbol</label><input type="text" id="order-symbol" placeholder="AAPL" /></div>
+              <div class="form-group"><label>Quantity</label><input type="number" id="order-qty" placeholder="100" /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Order Type</label>
+                <select id="order-type">
+                  <option>MARKET</option><option>LIMIT</option><option>STOP</option><option>STOP_LIMIT</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Price</label><input type="number" id="order-price" placeholder="0.00" /></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-secondary" id="cancel-order">Cancel</button>
+            <button class="btn-primary" id="submit-order">Submit Order</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === RISK PAGE === -->
+    <section class="page" id="page-risk">
+      <div class="section-header"><h2>Risk Management</h2></div>
+      <div class="risk-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Risk Overview</span></div>
+          <div class="risk-meters" id="risk-meters"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Drawdown Chart</span></div>
+          <div class="chart-wrap"><canvas id="drawdownChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Position Sizing</span></div>
+          <div class="pos-sizer">
+            <div class="form-group"><label>Account Size ($)</label><input type="number" id="ps-account" value="100000" /></div>
+            <div class="form-group"><label>Risk per Trade (%)</label><input type="number" id="ps-risk" value="1" step="0.1" /></div>
+            <div class="form-group"><label>Entry Price ($)</label><input type="number" id="ps-entry" placeholder="150.00" /></div>
+            <div class="form-group"><label>Stop Loss Price ($)</label><input type="number" id="ps-stop" placeholder="145.00" /></div>
+            <button class="btn-primary full-width" id="calc-position">Calculate Position Size</button>
+            <div class="pos-result" id="pos-result"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Exposure by Sector</span></div>
+          <div class="chart-wrap small-chart"><canvas id="sectorChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === AI INTELLIGENCE PAGE === -->
+    <section class="page" id="page-ai">
+      <div class="section-header">
+        <h2>AI Intelligence Control</h2>
+        <div class="ai-status-row">
+          <div class="ai-status-badge"><span class="pulse-dot"></span> 21 Models Connected</div>
+          <div class="ai-status-badge memory" id="memory-stats-badge">Memory: 0 Records</div>
+        </div>
+      </div>
+      
+      <div class="ai-dashboard-grid">
+        <!-- Live Signal Monitor -->
+        <div class="card ai-card">
+          <div class="card-header">
+            <span class="card-title">Fast Signal Consensus</span>
+            <span class="ai-layer-tag">Fast Signal</span>
+          </div>
+          <div class="ai-signals-list" id="ai-consensus-signals">
+            <div class="ai-empty-state">Select a symbol from Watchlist for real-time AI consensus.</div>
+          </div>
+        </div>
+
+        <!-- Global Sentiment Feed -->
+        <div class="card ai-card">
+          <div class="card-header">
+            <span class="card-title">Global Sentiment Engine</span>
+            <span class="ai-layer-tag sentiment">News/Sentiment</span>
+          </div>
+          <div class="ai-sentiment-feed" id="ai-sentiment-feed">
+            <div class="loading-shimmer"></div>
+          </div>
+          <button class="btn-secondary mt-12" id="refresh-ai-sentiment">↻ Refresh News Feed</button>
+        </div>
+
+        <!-- Deep Reasoning Console -->
+        <div class="card ai-card large">
+          <div class="card-header">
+            <span class="card-title">Deep Analysis & Reasoning</span>
+            <span class="ai-layer-tag reasoning">Reasoning</span>
+          </div>
+          <div class="ai-reasoning-console">
+            <div class="ai-console-header">
+              <select id="ai-reasoning-target">
+                <option value="">Select Strategy to Analyze</option>
+              </select>
+              <button class="btn-primary" id="run-ai-reasoning">▶ Run Deep Analysis</button>
+            </div>
+            <div class="ai-console-output" id="ai-reasoning-output">
+              <span class="console-prompt">AlgoForge AI Console v1.0.2... Ready for input.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy Architect -->
+        <div class="card ai-card">
+          <div class="card-header">
+            <span class="card-title">Strategy Architect (Code Gen)</span>
+            <span class="ai-layer-tag code">Code Gen</span>
+          </div>
+          <div class="ai-code-builder">
+            <textarea id="ai-strat-desc" placeholder="Describe your strategy in plain English (e.g., 'A trend-following strategy using 20/50 EMA crossover on AAPL 15m timeframe')"></textarea>
+            <button class="btn-primary full-width mt-8" id="gen-strat-code">{} Generate Strategy Script</button>
+          </div>
+        </div>
+
+        <!-- Market Memory Monitor -->
+        <div class="card ai-card">
+          <div class="card-header">
+            <span class="card-title">Memory Growth Monitor</span>
+            <span class="ai-layer-tag">Live Stats</span>
+          </div>
+          <div class="memory-monitor-content">
+            <div class="memory-stat-row">
+              <span>Total Experiences</span>
+              <strong id="stat-total-records">0</strong>
+            </div>
+            <div class="memory-stat-row">
+              <span>Active Symbols</span>
+              <strong id="stat-total-symbols">0</strong>
+            </div>
+            <div class="memory-stat-row">
+              <span>Last Snapshot</span>
+              <strong id="stat-last-sync" style="font-size: 10px;">--:--:--</strong>
+            </div>
+            <div class="memory-symbol-tags" id="memory-symbol-list">
+              <!-- Symbols will be injected here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Safety Guard -->
+        <div class="card ai-card">
+          <div class="card-header">
+            <span class="card-title">Safety Guard Monitoring</span>
+            <span class="ai-layer-tag safety">Safety</span>
+          </div>
+          <div class="ai-safety-monitor">
+            <div class="safety-stat">
+              <span class="label">Orders Scanned</span>
+              <span class="val" id="ai-orders-scanned">0</span>
+            </div>
+            <div class="safety-stat">
+              <span class="label">Anomalies Detected</span>
+              <span class="val negative">0</span>
+            </div>
+            <div class="safety-log" id="ai-safety-log">
+              <div class="log-entry info">System armed. Monitoring all broker API calls.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Research Brain (Market Memory) -->
+        <div class="card ai-card large">
+          <div class="card-header">
+            <span class="card-title">AI Research Brain (Market Memory)</span>
+            <span class="ai-layer-tag memory">Intelligence Layer</span>
+          </div>
+          <div class="ai-memory-engine">
+            <div class="memory-controls">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Current Regime</label>
+                  <select id="memory-regime">
+                    <option value="bullish_trending">Bullish Trending</option>
+                    <option value="sideways_volatile">Sideways Volatile</option>
+                    <option value="bearish_crash">Bearish Crash</option>
+                    <option value="mean_reversion">Mean Reversion</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Volatility</label>
+                  <select id="memory-volatility">
+                    <option value="low_compression">Low Compression</option>
+                    <option value="high_expansion">High Expansion</option>
+                    <option value="climax">Climax</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Momentum (0-1)</label>
+                  <input type="number" id="memory-momentum" value="0.75" step="0.05" min="0" max="1">
+                </div>
+              </div>
+              <button class="btn-primary full-width mt-8" id="search-historical-memory">🔎 Retrieve Similar Historical Situations</button>
+            </div>
+            <div class="memory-results" id="memory-search-results">
+              <div class="ai-empty-state">No historical context retrieved yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /pages-container -->
+</main>
+
+<!-- NOTIFICATION TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- BROKER SETTINGS MODAL -->
+<div class="modal-overlay" id="broker-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Angel One Connectivity</h3>
+      <button class="modal-close" id="close-broker-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Configure your Angel One SmartAPI credentials to fetch real-time market data.</p>
+      <div class="form-group">
+        <label>API Key</label>
+        <input type="text" id="broker-api-key" value="Wg5bEKNc" placeholder="SmartAPI Key" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Client Code</label>
+          <input type="text" id="broker-client-code" placeholder="e.g. A123456" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="broker-password" placeholder="Login Password" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>TOTP Secret / Token</label>
+        <input type="text" id="broker-totp" placeholder="6-digit TOTP from App" />
+      </div>
+      <div id="broker-status-msg" style="margin-top:10px; font-size:12px; color:var(--blue); display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="cancel-broker">Cancel</button>
+      <button class="btn-primary" id="connect-broker">Connect Broker</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXECUTION REVIEW MODAL -->
+<div class="modal-overlay" id="execution-review-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>AI Assisted Execution Review</h3>
+      <button class="modal-close" id="close-review-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="review-trade-header" style="text-align:center; padding:10px; background:var(--bg-card); border-radius:8px; margin-bottom:12px;">
+        <span id="review-side-badge" class="trade-side buy">BUY</span>
+        <strong id="review-symbol" style="font-size:20px; margin:0 10px;">AAPL</strong>
+        <span id="review-qty">100 Shares</span>
+      </div>
+      
+      <div class="ai-review-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="card" style="padding:12px;">
+          <div class="stat-label">Risk Profile</div>
+          <div class="stat-value" id="review-risk-tier" style="font-size:16px; color:var(--green);">LOW RISK</div>
+          <div style="font-size:10px; color:var(--text-muted); margin-top:4px;">Score: <span id="review-risk-score">15</span>/100</div>
+        </div>
+        <div class="card" style="padding:12px;">
+          <div class="stat-label">Holding Style</div>
+          <div class="stat-value" id="review-holding-style" style="font-size:13px; margin-top:4px;">Long-term / Core</div>
+        </div>
+      </div>
+
+      <div class="risk-assessment" style="margin-top:12px; padding:12px; background:var(--bg-card); border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-bottom:4px; text-transform:uppercase;">Risk Analysis & Logic</div>
+        <div id="review-risk-msg" style="font-size:13px; margin-bottom:8px;">Exposure within limits. High liquidity detected.</div>
+        <div class="risk-factors" id="review-risk-factors" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <!-- Factors like Volatility, Cap, Liquidity injected here -->
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top:12px;">
+        <div class="form-group"><label>Suggested SL</label><input type="number" id="review-sl" /></div>
+        <div class="form-group"><label>Suggested TP</label><input type="number" id="review-tp" /></div>
+      </div>
+
+      <div class="ai-insight-box" style="margin-top:12px; font-size:12px; color:var(--text-secondary); font-style:italic;">
+        "Historical similarity search shows 82% match with May 2024 breakout. Bullish continuation probability: 74%."
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="cancel-execution">Cancel</button>
+      <button class="btn-primary" id="confirm-execute" style="background:var(--green); box-shadow:0 0 20px var(--green-dim);">✔ Confirm &amp; Execute Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI CHAT TERMINAL (SLIDE-OUT) -->
+<div id="ai-chat-terminal" class="ai-chat-terminal">
+  <div class="terminal-header">
+    <div class="terminal-title">◈ AlgoForge Quant Assistant</div>
+    <button class="terminal-close" id="close-chat-terminal">✕</button>
+  </div>
+  <div class="terminal-history" id="terminal-history">
+    <div class="terminal-msg ai">System initialized. How can I assist your market research today?</div>
+  </div>
+  <div class="terminal-input-wrap">
+    <textarea id="terminal-input" placeholder="Ask about a symbol, strategy, or regime similarity..."></textarea>
+    <button class="btn-primary" id="send-terminal-msg">Send</button>
+  </div>
+</div>
+
+<!-- SHARED & EVENTS -->
+<script src="events/event_bus.js"></script>
+<script src="shared/logger.js"></script>
+
+<!-- CORE INTELLIGENCE LAYERS -->
+<script src="core/market/market_data_service.js"></script>
+<script src="core/risk/risk_engine.js"></script>
+<script src="core/portfolio/portfolio_manager.js"></script>
+<script src="core/execution/execution_manager.js"></script>
+<script src="core/ai/intelligence_engine.js"></script>
+<script src="core/ai/learning_engine.js"></script>
+<script src="core/backtesting/backtest_engine.js"></script>
+<script src="core/strategies/strategy_interface.js"></script>
+<script src="core/strategies/strategy_controller.js"></script>
+
+<script src="data.js"></script>
+<script src="ai_config.js"></script>
+<script src="ai_service.js"></script>
+<script src="broker_config.js"></script>
+<script src="broker_service.js"></script>
+<script src="app.js?v=2"></script>
+</body>
+</html>

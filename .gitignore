@@ -1,0 +1,39 @@
+# === Dependencies ===
+node_modules/
+
+# === Secrets — NEVER commit ===
+.env
+.env.*
+!.env.example
+
+# === Database (use persistent volume on hosting) ===
+*.db
+*.db-shm
+*.db-wal
+
+# === Logs ===
+*.log
+logs/
+
+# === OS / Editor junk ===
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+
+# === Python cache ===
+__pycache__/
+*.pyc
+*.pyo
+instance/
+
+# === Dev / test files (do not deploy) ===
+test_models.html
+check_db.py
+verify_models.py
+test_intelligence.py
+populate_samples.js
+simulate_user.js
+learning_system.py
+market_pipeline.py
+intelligence_layer.py
+

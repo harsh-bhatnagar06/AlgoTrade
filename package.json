@@ -1,0 +1,16 @@
+{
+  "name": "algoforge-intelligence",
+  "version": "1.0.0",
+  "description": "AlgoForge REAL Intelligence Layer",
+  "main": "server.js",
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2",
+    "morgan": "^1.10.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
